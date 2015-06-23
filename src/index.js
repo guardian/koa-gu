@@ -1,15 +1,31 @@
 var fs = require('fs');
 var path = require('path');
+var callsite = require('callsite')
 
-function loadMainConfig(rootdir) {
-    var cfgFile = fs.readFileSync(path.join(rootdir, 'gu.json'));
+function findRootDir(callerDir) {
+    // search caller's ancestors for gu.json
+    for (var i=0; i < 5; i++) {
+        var up = Array.apply(null, {length: i})
+            .map(function() { return '..'; })
+            .join('/')
+        var testPath = path.join(callerDir, up, 'gu.json')
+        if (fs.existsSync(testPath)) return path.dirname(testPath);
+    }
+
+    throw new Error('No gu.json found in ancestors of ' + callerDir)
+}
+
+function loadMainConfig(callerDir) {
+    var rootDir = findRootDir(callerDir);
+    var cfgPath = path.join(rootDir, 'gu.json');
+    var cfgFile = fs.readFileSync(cfgPath);
     var cfg = JSON.parse(cfgFile);
-    cfg.rootdir = rootdir;
+    cfg.rootdir = rootDir;
 
     Object.keys(process.env)
         .filter(function(key) { return /^GU_/i.test(key); })
         .map(function(key) {
-            return { key: key.substr(2).toLowerCase(), val: process.env[key] };
+            return { key: key.substr(3).toLowerCase(), val: process.env[key] };
         })
         .forEach(function(prop) { cfg[prop.key] = prop.val })
 
@@ -17,9 +33,14 @@ function loadMainConfig(rootdir) {
 }
 
 var gu = {
-    init: function(rootdir) {
-        gu.config = loadMainConfig(rootdir);
-        gu.router = gu.config.routes ? require('./router')(gu.config) : null;
+    init: function(www) {
+        www = www !== undefined ? www : true;
+
+        // get the caller's directory
+        var callerDir = path.dirname(callsite()[1].getFileName());
+
+        gu.config = loadMainConfig(callerDir);
+        if (www) gu.router = gu.config.routes ? require('./router')(gu.config) : null;
         gu.db = require('./db')
         gu.s3 = require('./s3')(gu.config)
         gu.tmpl = require('./tmpl')(gu.config)

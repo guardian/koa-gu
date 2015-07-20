@@ -10,14 +10,12 @@ module.exports = function(conf) {
     function relativeDate(date) { return moment(date).fromNow(); }
     swig.setFilter('relativeDate', relativeDate);
 
-    module.exports = render;
-
     function render(templateName, context) {
         context = _.extend(context || {}, {config: conf});
-        var stack = callsite(),
-            requester = stack[1].getFileName(),
-            callerDir = path.dirname(requester),
-            templatePath = path.join(callerDir, templateName);
+        var stack = callsite();
+        var requester = stack[1].getFileName();
+        var callerDir = path.dirname(requester);
+        var templatePath = path.join(callerDir, templateName);
 
         return swig.renderFile(templatePath, context);
     }

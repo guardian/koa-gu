@@ -22,6 +22,7 @@ function loadMainConfig(callerDir) {
     var cfg = JSON.parse(cfgFile);
     cfg.rootdir = rootDir;
 
+    // override cfg with any GU_ prefixed environment variables
     Object.keys(process.env)
         .filter(function(key) { return /^GU_/i.test(key); })
         .map(function(key) {

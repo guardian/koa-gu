@@ -41,10 +41,18 @@ var gu = {
         var callerDir = path.dirname(callsite()[1].getFileName());
 
         gu.config = loadMainConfig(callerDir);
-        if (www) gu.router = gu.config.routes ? require('./router')(gu.config) : null;
+        if (www) {
+            gu.router = gu.config.routes ? require('./router')(gu.config) : null;
+            gu.static = gu.config.static ? require('./static')(gu.config) : null;
+        }
         gu.db = require('./db')
         gu.s3 = require('./s3')(gu.config)
         gu.tmpl = require('./tmpl')(gu.config)
+
+        gu.env = (process.env.GU_ENV || 'dev').toLowerCase()
+        gu.dev = gu.env === 'dev'
+        gu.prod = gu.env === 'prod'
+
         return gu;
     }
 }

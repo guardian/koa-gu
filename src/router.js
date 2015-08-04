@@ -1,11 +1,10 @@
 var path = require('path')
 var util = require('util')
 var debug = require('debug')('api')
-var router = require('koa-router')();
+var router = require('koa-router')()
 
 module.exports = function(conf){
     if (conf.routes) route(conf);
-    // if (conf.static) static(conf);
     return router;
 };
 

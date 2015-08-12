@@ -49,6 +49,12 @@ var gu = {
         gu.s3 = require('./s3')(gu.config)
         gu.tmpl = require('./tmpl')(gu.config)
 
+        gu.dir = function() {
+            var args = [].slice.call(arguments);
+            args.unshift(gu.config.rootdir);
+            return path.resolve.apply(null, args);
+        }
+
         gu.env = (process.env.GU_ENV || 'dev').toLowerCase()
         gu.dev = gu.env === 'dev'
         gu.prod = gu.env === 'prod'

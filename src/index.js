@@ -1,6 +1,8 @@
-var fs = require('fs');
-var path = require('path');
+var fs = require('fs')
+var path = require('path')
 var callsite = require('callsite')
+var winston = require('winston')
+var mkdirp = require('mkdirp')
 
 function findRootDir(callerDir) {
     // search caller's ancestors for gu.json
@@ -33,6 +35,32 @@ function loadMainConfig(callerDir) {
     return cfg;
 }
 
+function createLogger(logdir) {
+    var transports = [new (winston.transports.Console)()];
+    var exceptionHandlers = [];
+    if (logdir) {
+        mkdirp.sync(logdir);
+        transports = transports.concat([
+            new (winston.transports.File)({
+              name: 'debug-file',
+              filename: path.resolve(logdir, 'debug.log'),
+              level: 'debug',
+              maxsize: 5 * 1024 * 1024 // 5MB
+            }),
+            new (winston.transports.File)({
+              name: 'error-file',
+              filename: path.resolve(logdir, 'error.log'),
+              level: 'error',
+              maxsize: 5 * 1024 * 1024 // 5MB
+            })
+        ])
+        exceptionHandlers.push(
+            new winston.transports.File({ filename: path.resolve(logdir, 'exceptions.log') })
+        );
+    }
+    return new (winston.Logger)({ transports: transports, exceptionHandlers: exceptionHandlers });
+}
+
 var gu = {
     init: function(www) {
         www = www !== undefined ? www : true;
@@ -45,6 +73,8 @@ var gu = {
             gu.router = gu.config.routes ? require('./router')(gu.config) : null;
             gu.static = gu.config.static ? require('./static')(gu.config) : null;
         }
+        gu.log = createLogger(gu.config.logdir && path.resolve(gu.config.rootdir, gu.config.logdir))
+
         gu.db = require('./db')
         gu.s3 = require('./s3')(gu.config)
         gu.tmpl = require('./tmpl')(gu.config)
@@ -58,6 +88,17 @@ var gu = {
         gu.env = (process.env.GU_ENV || 'dev').toLowerCase()
         gu.dev = gu.env === 'dev'
         gu.prod = gu.env === 'prod'
+
+        if (gu.router && gu.config.logdir) {
+            gu.router.get(path.join(gu.config.base_url, 'log'), function*() {
+                var logJson = fs.readFileSync(gu.dir(gu.config.logdir, 'debug.log'), 'utf8')
+                var log = logJson.split('\n').filter(v => !!v).map(JSON.parse)
+                log.reverse()
+                this.body = gu.tmpl('./templates/log.html', { log: log })
+            })
+        }
+
+        gu.log.debug('koa-gu initialized');
 
         return gu;
     }

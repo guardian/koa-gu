@@ -98,8 +98,6 @@ var gu = {
             })
         }
 
-        gu.log.debug('koa-gu initialized');
-
         return gu;
     }
 }

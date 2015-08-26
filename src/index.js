@@ -3,6 +3,7 @@ var path = require('path')
 var callsite = require('callsite')
 var winston = require('winston')
 var mkdirp = require('mkdirp')
+var _ = require('lodash')
 
 function findRootDir(callerDir) {
     // search caller's ancestors for gu.json
@@ -19,9 +20,15 @@ function findRootDir(callerDir) {
 
 function loadMainConfig(callerDir) {
     var rootDir = findRootDir(callerDir);
-    var cfgPath = path.join(rootDir, 'gu.json');
-    var cfgFile = fs.readFileSync(cfgPath);
-    var cfg = JSON.parse(cfgFile);
+
+    var baseCfgPath = path.join(rootDir, 'gu.json');
+    var baseCfgFile = fs.readFileSync(baseCfgPath);
+    var baseCfg = JSON.parse(baseCfgFile);
+
+    var overridesCfgPath = path.join(rootDir, 'gu-overrides.json');
+    var overridesCfg = fs.existsSync(overridesCfgPath) && JSON.parse(fs.readFileSync(overridesCfgPath));
+    var cfg = overridesCfg ? _.merge(baseCfg, overridesCfg) : baseCfg;
+
     cfg.rootdir = rootDir;
 
     // override cfg with any GU_ prefixed environment variables

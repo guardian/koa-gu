@@ -3,6 +3,9 @@ var swig = require('swig')
 var path = require('path')
 var _ = require('lodash')
 var moment = require('moment')
+var fs = require('fs')
+
+var fontCss = fs.readFileSync(path.join(__dirname, './css/font.css'), 'utf8')
 
 module.exports = function(conf) {
     swig.setDefaults({ cache: false });
@@ -11,7 +14,7 @@ module.exports = function(conf) {
     swig.setFilter('relativeDate', relativeDate);
 
     function render(templateName, context) {
-        context = _.extend(context || {}, {config: conf});
+        context = _.extend(context || {}, {config: conf, fontCss: fontCss});
         var stack = callsite();
         var requester = stack[1].getFileName();
         var callerDir = path.dirname(requester);

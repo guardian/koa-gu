@@ -6,7 +6,8 @@ client.on("error", function (err) {
     console.error("Error " + err);
 });
 
-['get','set'].forEach(function(val) { client[val] = denodeify(client[val].bind(client) );})
+var denodeifyCommands = ['get', 'set', 'mget', 'zrevrange', 'zadd']
+denodeifyCommands.forEach(function(val) { client[val] = denodeify(client[val].bind(client) );});
 
 client.setObj = function(key, obj) { return client.set(key, JSON.stringify(obj)); }
 client.getObj = function(key) {

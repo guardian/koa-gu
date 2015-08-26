@@ -94,8 +94,10 @@ var gu = {
         if (gu.router && gu.config.logdir) {
             gu.router.get(path.join(gu.config.base_url, 'log'), function*() {
                 var logJson = fs.readFileSync(gu.dir(gu.config.logdir, 'debug.log'), 'utf8')
-                var log = logJson.split('\n').filter(v => !!v).map(JSON.parse)
-                log.reverse()
+                var log = logJson.split('\n')
+                    .filter(v => !!v)
+                    .reverse().slice(0, 2000)
+                    .map(JSON.parse)
                 this.body = gu.tmpl('./templates/log.html', { log: log })
             })
         }

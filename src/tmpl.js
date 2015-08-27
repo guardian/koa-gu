@@ -6,6 +6,7 @@ var moment = require('moment')
 var fs = require('fs')
 
 var fontCss = fs.readFileSync(path.join(__dirname, './css/font.css'), 'utf8')
+var headerHTML = fs.readFileSync(path.join(__dirname, './templates/header.html'), 'utf8')
 
 module.exports = function(conf) {
     swig.setDefaults({ cache: false });
@@ -14,7 +15,7 @@ module.exports = function(conf) {
     swig.setFilter('relativeDate', relativeDate);
 
     function render(templateName, context) {
-        context = _.extend(context || {}, {config: conf, fontCss: fontCss});
+        context = _.extend(context || {}, {config: conf, fontCss: fontCss, header: headerHTML});
         var stack = callsite();
         var requester = stack[1].getFileName();
         var callerDir = path.dirname(requester);

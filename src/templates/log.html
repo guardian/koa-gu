@@ -5,45 +5,46 @@
 </head>
 <body>
     <style type="text/css">
-    	.log {
-    		list-style-type: none;
-    	}
-    	.log li {
-    		margin-bottom: 2px;
-    	}
+        .log {
+            list-style-type: none;
+        }
+        .log li {
+            margin-bottom: 2px;
+        }
         .log li time,
         .log li .level {
             display: inline-block;
         }
 
-    	.log li p {
-    		display: inline;
-    		margin: 0;
-    	}    	
+        .log li p {
+            display: inline;
+            margin: 0;
+        }
 
-    	time {
-    		border-radius: 4px;
-    		padding: 2px 4px;
-    		background-color: #bdbdbd;
-    	}
-    	.level {
-    		border-radius: 4px;
-    		padding: 2px 4px;
-    		width: 50px;
-    		text-align: center;
-    	}
-    	.level--error { background-color: rgb(255, 156, 156); }
-    	.level--debug { background-color: rgba(0, 128, 0, 0.34); }
-    	.level--info { background-color: rgba(0, 0, 255, 0.4); }
+        time {
+            border-radius: 4px;
+            padding: 2px 4px;
+            background-color: #bdbdbd;
+        }
+        .level {
+            border-radius: 4px;
+            padding: 2px 4px;
+            width: 50px;
+            text-align: center;
+        }
+        .level--error { background-color: rgb(255, 156, 156); }
+        .level--warn { background-color: #FFC180; }
+        .level--debug { background-color: rgba(0, 128, 0, 0.34); }
+        .level--info { background-color: rgba(0, 0, 255, 0.4); }
 
     </style>
     <div class="container">
         <ul class="log">
             {% for line in log %}
              <li>
-             	<time>{{ line.timestamp.slice(0, 19)}}</time>
-             	<span class="level level--{{ line.level }}">{{ line.level }}</span>
-             	<p>{{ line.message }}</p>
+                <time>{{ line.timestamp.slice(0, 19)}}</time>
+                <span class="level level--{{ line.level }}">{{ line.level }}</span>
+                <p>{{ line.message }}</p>
             </li>
             {% endfor %}
         </ul>

@@ -16,7 +16,7 @@ function route(conf) {
   var routes = Object.keys(conf.routes).map(function(key) {
     var controller = controllers[conf.routes[key]];
     if (!controller) throw new Error('No controller found with the name ' + conf.routes[key]);
-    var request = /^(\w+) ([\w\/]+)$/.exec(key);
+    var request = /^(\w+) ([\w\/\*]+)$/.exec(key);
     return {
       method: request[1].toLowerCase(),
       endpoint: path.join(conf.base_url, request[2]),

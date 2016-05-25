@@ -74,6 +74,7 @@ function createLogger(logdir) {
 
 var gu = {
     init: function(opts) {
+        opts = opts || {};
         www = opts.www !== undefined ? opts.www : true;
         db = opts.db !== undefined ? opts.db : true;
 

@@ -53,14 +53,16 @@ function createLogger(logdir) {
               filename: path.resolve(logdir, 'debug.log'),
               level: 'debug',
               tailable: true,
-              maxsize: 5 * 1024 * 1024 // 5MB
+              maxsize: 5 * 1024 * 1024, // 5MB
+              maxFiles: 10
             }),
             new (winston.transports.File)({
               name: 'error-file',
               filename: path.resolve(logdir, 'error.log'),
               level: 'error',
               tailable: true,
-              maxsize: 5 * 1024 * 1024 // 5MB
+              maxsize: 5 * 1024 * 1024, // 5MB
+              maxFiles: 10
             })
         ])
         exceptionHandlers.push(

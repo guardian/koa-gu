@@ -73,8 +73,9 @@ function createLogger(logdir) {
 }
 
 var gu = {
-    init: function(www) {
-        www = www !== undefined ? www : true;
+    init: function(opts) {
+        www = opts.www !== undefined ? opts.www : true;
+        db = opts.db !== undefined ? opts.db : true;
 
         // get the caller's directory
         var callerDir = path.dirname(callsite()[1].getFileName());
@@ -86,7 +87,8 @@ var gu = {
         }
         gu.log = createLogger(gu.config.logdir && path.resolve(gu.config.rootdir, gu.config.logdir))
 
-        gu.db = require('./db')
+        if (db) gu.db = require('./db')
+
         gu.s3 = require('./s3')(gu.config)
         gu.tmpl = require('./tmpl')(gu.config)
 

@@ -53,6 +53,7 @@ function createLogger(logdir) {
               filename: path.resolve(logdir, 'debug.log'),
               level: 'debug',
               tailable: true,
+              timestamp: true,
               maxsize: 5 * 1024 * 1024, // 5MB
               maxFiles: 10
             }),
@@ -61,6 +62,7 @@ function createLogger(logdir) {
               filename: path.resolve(logdir, 'error.log'),
               level: 'error',
               tailable: true,
+              timestamp: true,
               maxsize: 5 * 1024 * 1024, // 5MB
               maxFiles: 10
             })

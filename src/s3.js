@@ -1,9 +1,14 @@
 var AWS = require('aws-sdk')
 var denodeify = require('denodeify')
 
-module.exports = function(cfg) {
-    var credentials = new AWS.SharedIniFileCredentials(cfg.aws_profile ? {profile: cfg.aws_profile} : {});
-    AWS.config.credentials = credentials;
+module.exports = async function(cfg) {
+    AWS.config.credentials = new AWS.EC2MetadataCredentials({
+        httpOptions: { timeout: 5000 }, // 5 second timeout
+        maxRetries: 10, // retry 10 times
+        retryDelayOptions: { base: 200 }, // see AWS.Config for information
+        logger: console // see AWS.Config for information
+      });
+
     var s3 = new AWS.S3();
 
     var exportFns = {};

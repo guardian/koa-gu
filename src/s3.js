@@ -4,13 +4,21 @@ var denodeify = require('denodeify')
 module.exports = async function(cfg) {
 
     async function getCredentials() {
-        let credentials = await new AWS.CredentialProviderChain().resolvePromise();
+
+        let chain = new AWS.CredentialProviderChain();
+        chain.providers = [
+            function () { return new AWS.EC2MetadataCredentials()},
+            function () { return new AWS.SharedIniFileCredentials({profile: 'interactives'}); }
+        ]
+
+        let credentials = await chain.resolvePromise();
         console.log(credentials);
         return credentials;
+    
     }
 
-    var credentials = await getCredentials();
-    AWS.config.credentials = credentials;
+
+    AWS.config.credentials = await getCredentials();
     var s3 = new AWS.S3();
 
     var exportFns = {};

@@ -1,8 +1,15 @@
 var AWS = require('aws-sdk')
 var denodeify = require('denodeify')
 
-module.exports = function(cfg) {
-    var credentials = new AWS.SharedIniFileCredentials(cfg.aws_profile ? {profile: cfg.aws_profile} : {});
+module.exports = async function(cfg) {
+
+    async function getCredentials() {
+        let credentials = await new AWS.CredentialProviderChain().resolvePromise();
+        console.log(credentials);
+        return credentials;
+    }
+
+    var credentials = await getCredentials();
     AWS.config.credentials = credentials;
     var s3 = new AWS.S3();
 

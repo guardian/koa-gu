@@ -16,18 +16,19 @@ module.exports = async function(cfg) {
     
 var chain = new AWS.CredentialProviderChain();
 
-chain.resolve((err, cred)=>{
-	AWS.config.credentials = cred;
-    var s3 = new AWS.S3();
+chain.resolvePromise((err, cred)=>{
+	AWS.config.credentials = cred;}).then(() =>{
 
-    var exportFns = {};
+        var s3 = new AWS.S3();
 
-    ['putObject'].forEach(function(val) {
-        exportFns[val] = denodeify(s3[val].bind(s3));
-    });
-
-    return exportFns;
-
+        var exportFns = {};
+    
+        ['putObject'].forEach(function(val) {
+            exportFns[val] = denodeify(s3[val].bind(s3));
+        });
+    
+        return exportFns;
+    
 })
 
 

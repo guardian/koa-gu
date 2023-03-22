@@ -8,8 +8,6 @@ module.exports = async function(cfg) {
 
     AWS.CredentialProviderChain.defaultProviders = [
         function () { return new AWS.EC2MetadataCredentials(); },
-        function () { return new AWS.EnvironmentCredentials('AWS'); },
-        function () { return new AWS.EnvironmentCredentials('AMAZON'); },
         function () { return new AWS.SharedIniFileCredentials({profile: aws_profile ? aws_profile : 'default' }); }
       ];
 

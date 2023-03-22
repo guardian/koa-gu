@@ -1,34 +1,41 @@
-var AWS = require('aws-sdk')
-var denodeify = require('denodeify')
+var AWS = require("aws-sdk")
+var denodeify = require("denodeify")
 
-module.exports = async function(cfg) {
+module.exports = async function (cfg) {
+  // var credentials = new AWS.SharedIniFileCredentials(cfg.aws_profile ? {profile: cfg.aws_profile} : {});
+  // AWS.config.credentials = credentials;
 
-    // var credentials = new AWS.SharedIniFileCredentials(cfg.aws_profile ? {profile: cfg.aws_profile} : {});
-    // AWS.config.credentials = credentials;
+  AWS.CredentialProviderChain.defaultProviders = [
+    function () {
+      return new AWS.EC2MetadataCredentials()
+    },
+    function () {
+      return new AWS.SharedIniFileCredentials({
+        profile: aws_profile ? aws_profile : "default",
+      })
+    },
+  ]
 
-    AWS.CredentialProviderChain.defaultProviders = [
-        function () { return new AWS.EC2MetadataCredentials(); },
-        function () { return new AWS.SharedIniFileCredentials({profile: aws_profile ? aws_profile : 'default' }); }
-      ];
+  var chain = new AWS.CredentialProviderChain()
 
-    
-var chain = new AWS.CredentialProviderChain();
+  var chainpromise = chain.resolvePromise()
 
-chain.resolvePromise((err, cred)=>{
-	AWS.config.credentials = cred;}).then(() =>{
+  chainpromise.then(
+    function (credentials) {
+      AWS.config.credentials = credentials;
+    },
+    function (err) {
+      console.log("Error: " + err.message)
+    }
+  )
 
-        var s3 = new AWS.S3();
+  var s3 = new AWS.S3()
 
-        var exportFns = {};
-    
-        ['putObject'].forEach(function(val) {
-            exportFns[val] = denodeify(s3[val].bind(s3));
-        });
-    
-        return exportFns;
-    
-})
+  var exportFns = {}
 
+  ;["putObject"].forEach(function (val) {
+    exportFns[val] = denodeify(s3[val].bind(s3))
+  })
 
-    
+  return exportFns
 }

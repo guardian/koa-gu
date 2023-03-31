@@ -75,10 +75,10 @@ function createLogger(logdir) {
 }
 
 var gu = {
-    init: function(opts) {
-        opts = opts || {};
-        www = opts.www !== undefined ? opts.www : true;
-        db = opts.db !== undefined ? opts.db : true;
+    init: function(_opts) {
+        const opts = _opts || {};
+        const www = opts.www !== undefined ? opts.www : true;
+        const db = opts.db !== undefined ? opts.db : true;
 
         // get the caller's directory
         var callerDir = path.dirname(callsite()[1].getFileName());

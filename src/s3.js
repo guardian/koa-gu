@@ -1,16 +1,38 @@
-var AWS = require('aws-sdk')
-var denodeify = require('denodeify')
+var AWS = require("aws-sdk");
+var denodeify = require("denodeify");
 
-module.exports = async function(cfg) {
+module.exports = async function (cfg) {
+  AWS.CredentialProviderChain.defaultProviders = [
+    function () {
+      return new AWS.EC2MetadataCredentials();
+    },
+    function () {
+      return new AWS.SharedIniFileCredentials({
+        profile: cfg.aws_profile ? cfg.aws_profile : "default",
+      });
+    },
+  ];
 
+  var chain = new AWS.CredentialProviderChain();
 
-    var s3 = new AWS.S3();
+  var chainpromise = chain.resolvePromise();
 
-    var exportFns = {};
+  chainpromise.then(
+    function (credentials) {
+      AWS.config.credentials = credentials;
+    },
+    function (err) {
+      console.log("Error: " + err.message);
+    }
+  );
 
-    ['putObject'].forEach(function(val) {
-        exportFns[val] = denodeify(s3[val].bind(s3));
-    });
+  var s3 = new AWS.S3();
 
-    return exportFns;
-}
+  const exportFns = {};
+
+  ["putObject"].forEach(function (val) {
+    exportFns[val] = denodeify(s3[val].bind(s3));
+  });
+
+  return exportFns;
+};

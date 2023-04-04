@@ -75,7 +75,7 @@ function createLogger(logdir) {
 }
 
 var gu = {
-    init: function(_opts) {
+    init: async function(_opts) {
         const opts = _opts || {};
         const www = opts.www !== undefined ? opts.www : true;
         const db = opts.db !== undefined ? opts.db : true;
@@ -84,6 +84,9 @@ var gu = {
         var callerDir = path.dirname(callsite()[1].getFileName());
 
         gu.config = loadMainConfig(callerDir);
+
+        const credentials = await require('./auth')(gu.config);
+
         if (www) {
             gu.router = gu.config.routes ? require('./router')(gu.config) : null;
             gu.static = gu.config.static ? require('./static')(gu.config) : null;
@@ -92,7 +95,7 @@ var gu = {
 
         if (db) gu.db = require('./db')
 
-        gu.s3 = require('./s3')(gu.config)
+        gu.s3 = require('./s3')()
         gu.tmpl = require('./tmpl')(gu.config)
 
         gu.dir = function() {

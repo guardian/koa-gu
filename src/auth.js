@@ -1,7 +1,6 @@
 var AWS = require("aws-sdk");
 
 module.exports = async function({ aws_profile }) {
-  console.log({aws_profile});
   AWS.CredentialProviderChain.defaultProviders = [
     function () {
       return new AWS.EC2MetadataCredentials();

@@ -1,6 +1,6 @@
 {
   "name": "@guardian/koa-gu",
-  "version": "1.0.0",
+  "version": "1.0.1-0",
   "description": "some small reusable modules for guardian koa micro-sites; this is a Guardian version of koa-gu",
   "main": "index.js",
   "scripts": {
